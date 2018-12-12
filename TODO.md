@@ -1,2 +1,4 @@
-[ ] New base class "BaseStoppable" inherited from "BaseThread".
-[ ] "BaseComponent" inherited from "BaseStoppable".
+- [ ] New base class "BaseStoppable" inherited from "BaseThread".
+- [ ] "BaseComponent" inherited from "BaseStoppable".
+- [ ] New classes:
+  - Timer.

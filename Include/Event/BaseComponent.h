@@ -9,7 +9,7 @@
 #include <vector>
 
 #include <Event/Event.h>
-#include <Event/TypeEvent.h>
+#include <Event/UserEvent.h>
 
 class BaseComponent {
     private:
@@ -32,10 +32,10 @@ class BaseComponent {
         std::thread thread;
 
         template<class T>
-        void AddEvent(const TypeEvent<T> &ev) {
+        void AddEvent(const UserEvent<T> &ev) {
             std::lock_guard<std::mutex> lock(queueLock);
 
-            queue.push(new TypeEvent<T>(ev));
+            queue.push(new UserEvent<T>(ev));
         }
 
         void AddEvent(const Event &ev);
@@ -43,12 +43,12 @@ class BaseComponent {
     public:
         BaseComponent();
 
-        void Start(int detached = 0);
+        void Start(int detach = 0);
         void Stop(int force = 0);
         void Wait();
 
         template<class T>
-        static void Publish(const TypeEvent<T> &ev) {
+        static void Publish(const UserEvent<T> &ev) {
             std::lock_guard<std::mutex> lock(eventsLock);
             Event::Type type = ev.GetType();
 

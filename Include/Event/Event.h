@@ -2,6 +2,9 @@
 #define EVENT_H
 
 class Event {
+    public:
+        typedef int Type;
+
     private:
         int id;
     

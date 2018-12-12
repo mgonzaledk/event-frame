@@ -2,6 +2,7 @@
 #include <thread>
 
 #include <Lock/Semaphore.h>
+#include <Event/Key.h>
 
 #define N 2
 
@@ -15,6 +16,8 @@ void counter(Semaphore *semaphore, int *globalCounter) {
 
 int main(int argc, char **argv) {
     (void)argc, (void)argv;
+
+    std::cout << EventType<3>().GetId();
 
     Semaphore semaphore(1);
     int globalCounter = 0;

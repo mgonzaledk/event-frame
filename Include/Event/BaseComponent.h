@@ -22,7 +22,7 @@ class BaseComponent {
         static EventMap events;
 
         std::mutex queueLock;
-        std::mutex eventsLock;
+        static std::mutex eventsLock;
 
         void DeleteAll();
         void Loop();
@@ -48,17 +48,20 @@ class BaseComponent {
         void Wait();
 
         template<class T>
-        void Publish(const TypeEvent<T> &ev) {
+        static void Publish(const TypeEvent<T> &ev) {
             std::lock_guard<std::mutex> lock(eventsLock);
             Event::Type type = ev.GetType();
 
             for(size_t i = 0; i < events[type].size(); ++i) {
-                // events[type][i] != nullptr
+                if(events[type][i] == nullptr) {
+                    throw;
+                }
+
                 events[type][i]->AddEvent<T>(ev);
             }
         }
 
-        void Publish(const Event &ev);
+        static void Publish(const Event &ev);
 
         void Subscribe(Event::Type type);
         void Unsubscribe(Event::Type type);

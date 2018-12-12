@@ -1,6 +1,12 @@
 #include <algorithm>
+#include <iostream>
 
 #include <Event/BaseComponent.h>
+
+BaseComponent::EventMap BaseComponent::events =
+    BaseComponent::EventMap();
+
+std::mutex BaseComponent::eventsLock;
 
 void BaseComponent::DeleteAll() {
     std::lock_guard<std::mutex> lock(queueLock);
@@ -12,16 +18,12 @@ void BaseComponent::DeleteAll() {
 }
 
 void BaseComponent::Loop() {
-    exit = false;
-
     Init();
 
-    while(!exit) {
+    while(!exit.load()) {
         if(queueLock.try_lock()) {
             if(queue.empty()) {
                 queueLock.unlock();
-
-                if(exit) exit = true;
             } else {
                 Event *ev = queue.front();
                 queue.pop();
@@ -48,7 +50,7 @@ BaseComponent::BaseComponent() :
 
 void BaseComponent::Start(int detach) {
     exit.store(0, std::memory_order_relaxed);
-    thread = std::thread(Loop, this);
+    thread = std::thread(&BaseComponent::Loop, this);
 
     if(detach) {
         thread.detach();
@@ -60,7 +62,7 @@ void BaseComponent::Stop(int force) {
         DeleteAll();
     }
 
-    exit.store(1, std::memory_order_relaxed);
+    exit.store(1);
 }
 
 void BaseComponent::Wait() {
@@ -74,7 +76,10 @@ void BaseComponent::Publish(const Event &ev) {
     Event::Type type = ev.GetType();
 
     for(size_t i = 0; i < events[type].size(); ++i) {
-        // events[type][i] != nullptr
+        if(events[type][i] == nullptr) {
+            throw;
+        }
+
         events[type][i]->AddEvent(ev);
     }
 }
@@ -96,11 +101,17 @@ void BaseComponent::Unsubscribe(Event::Type type) {
     std::lock_guard<std::mutex> lock(eventsLock);
 
     EventMap::iterator eIt = events.find(type);
-    // eIt != events.end()
+    
+    if(eIt == events.end()) {
+        throw;
+    }
 
     std::vector<BaseComponent *>::iterator vIt =
         std::find(eIt->second.begin(), eIt->second.end(), this);
-    // vIt != eIt->second.end()
+    
+    if(vIt == eIt->second.end()) {
+        throw;
+    }
 
     eIt->second.erase(vIt);
 }

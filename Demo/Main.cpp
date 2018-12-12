@@ -1,38 +1,91 @@
 #include <iostream>
+#include <chrono>
 #include <thread>
 
-#include <Lock/Semaphore.h>
+#include <Event/BaseComponent.h>
 
-#define N 2
+enum Actions : Event::Type {
+    A_STARTED = 0,
+    B_STARTED,
+    A_ENDED,
+    B_ENDED
+};
 
-void counter(Semaphore *semaphore, int *globalCounter) {
-    for(int i = 0; i < 50; ++i) {
-        semaphore->Wait();
-        *globalCounter += 1;
-        semaphore->Signal();
-    }
-} 
+class AReceiver : public BaseComponent {
+    public:
+        AReceiver() :
+            BaseComponent() {}
+        
+        void Init() {
+            Subscribe(A_STARTED);
+            Subscribe(A_ENDED);
+        }
+
+        void Run() {
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        }
+
+        void Process(Event *ev) {
+            switch(ev->GetType()) {
+                case Actions::A_STARTED: std::cout << "[AReceiver] A_STARTED" << std::endl; break;
+                case Actions::A_ENDED: std::cout << "[AReceiver] A_ENDED" << std::endl; break;
+            }
+        }
+};
+
+class DemoController : public BaseComponent {
+    private:
+        bool AEnded, BEnded;
+
+    public:
+        DemoController() :
+            BaseComponent(), AEnded(false), BEnded(false) {}
+
+        void Init() {
+            Subscribe(A_ENDED);
+            Subscribe(B_ENDED);
+        }
+
+        void Run() {
+            if(AEnded && BEnded) {
+                Stop();
+            }
+            
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        }
+
+        void Process(Event *ev) {
+            if(ev->GetType() == Actions::A_ENDED) {
+                std::cout << "[*] A_ENDED" << std::endl;
+                AEnded = true;
+            }
+
+            else if(ev->GetType() == Actions::B_ENDED) {
+                std::cout << "[*] B_ENDED" << std::endl;
+                BEnded = true;
+            }
+        }
+};
 
 int main(int argc, char **argv) {
     (void)argc, (void)argv;
 
-    Semaphore semaphore(1);
-    int globalCounter = 0;
-    std::thread threadCounters[N];
-    
-    for(size_t i = 0; i < N; ++i) {
-        threadCounters[i] = std::thread(counter, &semaphore, &globalCounter);
-    }
-    
-    for(size_t i = 0; i < N; ++i) {
-        threadCounters[i].join();
-    }
+    DemoController demo;
+    demo.Start();
 
-    std::cout << "[*] Global counter: " << globalCounter << std::endl;
+    AReceiver a;
+    a.Start();
 
-    if(globalCounter != 100) {
-        std::cerr << "[!] UNEXPECTED RESULT" << std::endl;
-    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
+    BaseComponent::Publish(Event(A_STARTED));
+    BaseComponent::Publish(Event(B_STARTED));
+    BaseComponent::Publish(Event(A_ENDED));
+    BaseComponent::Publish(Event(B_ENDED));
+
+    demo.Wait();
+
+    a.Stop();
+    a.Wait();
     return 0;
 }

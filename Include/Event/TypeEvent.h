@@ -12,11 +12,11 @@ class TypeEvent : public Event {
         TypeEvent() :
             Event() {}
         
-        TypeEvent(Event::Type type, T &object) :
+        TypeEvent(Event::Type type, const T &object) :
             Event(type), object(object) {}
         
         TypeEvent(const TypeEvent<T> &ev) :
-            Event(ev.id), object(ev.object) {}
+            Event(ev.type), object(ev.object) {}
         
         T &GetObject() {
             return object;

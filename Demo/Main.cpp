@@ -27,8 +27,15 @@ class AReceiver : public BaseComponent {
 
         void Process(Event *ev) {
             switch(ev->GetType()) {
-                case Actions::A_STARTED: std::cout << "[AReceiver] A_STARTED" << std::endl; break;
-                case Actions::A_ENDED: std::cout << "[AReceiver] A_ENDED" << std::endl; break;
+                case Actions::A_STARTED: {
+                    TypeEvent<std::string> *msg = static_cast<TypeEvent<std::string> *>(ev);
+
+                    std::cout << "[A] START: " << msg->GetObject() << std::endl;
+                } break;
+
+                case Actions::A_ENDED: {
+                    std::cout << "[A] END" << std::endl;
+                } break;
             }
         }
 };
@@ -78,7 +85,7 @@ int main(int argc, char **argv) {
 
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
-    BaseComponent::Publish(Event(A_STARTED));
+    BaseComponent::Publish(TypeEvent<std::string>(A_STARTED, "Mensaje de inicio de A"));
     BaseComponent::Publish(Event(B_STARTED));
     BaseComponent::Publish(Event(A_ENDED));
     BaseComponent::Publish(Event(B_ENDED));

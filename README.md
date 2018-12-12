@@ -3,4 +3,4 @@
 # event-frame
 Event-driven framework library.
 
-Multi threaded, concurrency and networking capability library.
+A multi-threaded, event-by-component and networking library.

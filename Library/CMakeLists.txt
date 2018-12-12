@@ -7,7 +7,8 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
 set(SOURCE_FILES
-    Semaphore.cpp)
+    Event/Event.cpp
+    Lock/Semaphore.cpp)
 
 add_library(event-frame SHARED STATIC ${SOURCE_FILES})
 target_include_directories(event-frame PRIVATE ../Include)

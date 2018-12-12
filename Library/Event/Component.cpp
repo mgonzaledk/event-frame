@@ -1,2 +1,0 @@
-#include <Event/Component.h>
-

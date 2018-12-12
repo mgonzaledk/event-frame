@@ -1,16 +1,16 @@
 #include <Event/Event.h>
 
 Event::Event() :
-    id(Type(0)) {}
+    type(Type(0)) {}
 
-Event::Event(Event::Type id) :
-    id(id) {}
+Event::Event(Event::Type type) :
+    type(type) {}
 
 Event::Event(const Event &ev) :
-    id(ev.id) {}
+    type(ev.type) {}
 
-Event::Type Event::GetId() const {
-    return id;
+Event::Type Event::GetType() const {
+    return type;
 }
 
 Event::~Event() {}

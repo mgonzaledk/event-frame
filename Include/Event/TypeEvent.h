@@ -1,5 +1,5 @@
-#ifndef EVENT_KEY_H
-#define EVENT_KEY_H
+#ifndef EVENT_TYPEEVENT_H
+#define EVENT_TYPEEVENT_H
 
 #include <Event/Event.h>
 

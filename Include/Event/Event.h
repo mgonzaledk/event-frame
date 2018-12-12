@@ -1,19 +1,19 @@
-#ifndef EVENT_H
-#define EVENT_H
+#ifndef EVENT_EVENT_H
+#define EVENT_EVENT_H
 
 class Event {
     public:
         typedef int Type;
 
     protected:
-        Type id;
+        Type type;
     
     public:
         Event();
-        Event(Type id);
+        Event(Type type);
         Event(const Event &ev);
 
-        Type GetId() const;
+        Type GetType() const;
 
         virtual ~Event();
 };

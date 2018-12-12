@@ -5,16 +5,15 @@ class Event {
     public:
         typedef int Type;
 
-    private:
-        int id;
+    protected:
+        Type id;
     
     public:
         Event();
-        Event(int id);
+        Event(Type id);
+        Event(const Event &ev);
 
-        int GetId() const;
-
-        void SetId(int id);
+        Type GetId() const;
 
         virtual ~Event();
 };

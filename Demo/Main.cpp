@@ -3,6 +3,7 @@
 #include <thread>
 
 #include <Event/BaseComponent.h>
+#include <Thread/BaseStoppable.h>
 
 enum Actions : Event::Type {
     A_STARTED = 0,
@@ -74,6 +75,21 @@ class DemoController : public BaseComponent {
         }
 };
 
+class Stoppable : public BaseStoppable {
+    public:
+        void Run() {
+            BaseComponent::Publish(UserEvent<std::string>(A_STARTED, "Mensaje de inicio de A"));
+            BaseComponent::Publish(Event(B_STARTED));
+
+            while(!Stopping()) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            }
+
+            BaseComponent::Publish(Event(A_ENDED));
+            BaseComponent::Publish(Event(B_ENDED));   
+        }
+};
+
 int main(int argc, char **argv) {
     (void)argc, (void)argv;
 
@@ -85,11 +101,11 @@ int main(int argc, char **argv) {
 
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
-    BaseComponent::Publish(UserEvent<std::string>(A_STARTED, "Mensaje de inicio de A"));
-    BaseComponent::Publish(Event(B_STARTED));
-    BaseComponent::Publish(Event(A_ENDED));
-    BaseComponent::Publish(Event(B_ENDED));
+    Stoppable stoppable;
+    stoppable();
+    stoppable.Stop();
 
+    stoppable.Wait();
     demo.Wait();
 
     a.Stop();

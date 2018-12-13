@@ -1,12 +1,11 @@
-#ifndef BASETHREAD_H
-#define BASETHREAD_H
+#ifndef THREAD_BASETHREAD_H
+#define THREAD_BASETHREAD_H
 
 #include <atomic>
 #include <thread>
 
 class BaseThread {
     protected:
-        std::atomic<int> exit;
         std::thread thread;
 
     public:
@@ -18,8 +17,6 @@ class BaseThread {
         virtual void Run() = 0;
 
         void operator()(int detach = 0);
-
-        ~BaseThread();
 };
 
 #endif

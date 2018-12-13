@@ -9,7 +9,9 @@ find_package(Threads REQUIRED)
 set(SOURCE_FILES
     Event/Event.cpp
     Event/BaseComponent.cpp
-    Lock/Semaphore.cpp)
+    Lock/Semaphore.cpp
+    Thread/BaseThread.cpp
+    Thread/BaseStoppable.cpp)
 
 add_library(event-frame SHARED STATIC ${SOURCE_FILES})
 target_include_directories(event-frame PRIVATE ../Include)

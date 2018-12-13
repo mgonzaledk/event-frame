@@ -1,4 +1,4 @@
-#include <BaseThread.h>
+#include <Thread/BaseThread.h>
 
 BaseThread::BaseThread() {}
 
@@ -14,4 +14,8 @@ void BaseThread::Wait() {
     if(thread.joinable()) {
         thread.join();
     }
+}
+
+void BaseThread::operator()(int detach) {
+    Start(detach);
 }

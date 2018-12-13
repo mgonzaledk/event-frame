@@ -17,6 +17,8 @@ class BaseThread {
 
         virtual void Run() = 0;
 
+        void operator()(int detach = 0);
+
         ~BaseThread();
 };
 

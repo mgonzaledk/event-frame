@@ -10,8 +10,9 @@
 
 #include <Event/Event.h>
 #include <Event/UserEvent.h>
+#include <Thread/BaseStoppable.h>
 
-class BaseComponent {
+class BaseComponent : public BaseStoppable {
     private:
         typedef std::unordered_map<
             Event::Type,
@@ -25,12 +26,9 @@ class BaseComponent {
         static std::mutex eventsLock;
 
         void DeleteAll();
-        void Loop();
-
+        virtual void Run();
+    
     protected:
-        std::atomic<int> exit;
-        std::thread thread;
-
         template<class T>
         void AddEvent(const UserEvent<T> &ev) {
             std::lock_guard<std::mutex> lock(queueLock);
@@ -39,13 +37,9 @@ class BaseComponent {
         }
 
         void AddEvent(const Event &ev);
-
+    
     public:
         BaseComponent();
-
-        void Start(int detach = 0);
-        void Stop(int force = 0);
-        void Wait();
 
         template<class T>
         static void Publish(const UserEvent<T> &ev) {
@@ -67,8 +61,9 @@ class BaseComponent {
         void Unsubscribe(Event::Type type);
 
         virtual void Init() = 0;
-        virtual void Run() = 0;
-        virtual void Process(Event *ev) = 0;
+        virtual void Process() = 0;
+        virtual void Handler(Event *ev) = 0;
+        virtual void End() = 0;
 
         ~BaseComponent();
 };

@@ -17,10 +17,10 @@ void BaseComponent::DeleteAll() {
     }
 }
 
-void BaseComponent::Loop() {
+void BaseComponent::Run() {
     Init();
 
-    while(!exit.load()) {
+    while(!Stopping()) {
         if(queueLock.try_lock()) {
             if(queue.empty()) {
                 queueLock.unlock();
@@ -30,13 +30,15 @@ void BaseComponent::Loop() {
 
                 queueLock.unlock();
 
-                Process(ev);
+                Handler(ev);
                 delete ev;
             }
         }
 
-        Run();
+        Process();
     }
+
+    End();
 }
 
 void BaseComponent::AddEvent(const Event &ev) {
@@ -46,30 +48,7 @@ void BaseComponent::AddEvent(const Event &ev) {
 }
 
 BaseComponent::BaseComponent() :
-    exit(0) {}
-
-void BaseComponent::Start(int detach) {
-    exit.store(0, std::memory_order_relaxed);
-    thread = std::thread(&BaseComponent::Loop, this);
-
-    if(detach) {
-        thread.detach();
-    }
-}
-
-void BaseComponent::Stop(int force) {
-    if(force) {
-        DeleteAll();
-    }
-
-    exit.store(1);
-}
-
-void BaseComponent::Wait() {
-    if(thread.joinable()) {
-        thread.join();
-    }
-}
+    BaseStoppable() {}
 
 void BaseComponent::Publish(const Event &ev) {
     std::lock_guard<std::mutex> lock(eventsLock);

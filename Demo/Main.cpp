@@ -22,15 +22,14 @@ class AReceiver : public BaseComponent {
             Subscribe(A_ENDED);
         }
 
-        void Run() {
+        void Process() {
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
 
-        void Process(Event *ev) {
+        void Handler(Event *ev) {
             switch(ev->GetType()) {
                 case Actions::A_STARTED: {
                     UserEvent<std::string> *msg = static_cast<UserEvent<std::string> *>(ev);
-
                     std::cout << "[A] START: " << msg->GetObject() << std::endl;
                 } break;
 
@@ -38,6 +37,10 @@ class AReceiver : public BaseComponent {
                     std::cout << "[A] END" << std::endl;
                 } break;
             }
+        }
+
+        void End() {
+
         }
 };
 
@@ -54,7 +57,7 @@ class DemoController : public BaseComponent {
             Subscribe(B_ENDED);
         }
 
-        void Run() {
+        void Process() {
             if(AEnded && BEnded) {
                 Stop();
             }
@@ -62,7 +65,7 @@ class DemoController : public BaseComponent {
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
 
-        void Process(Event *ev) {
+        void Handler(Event *ev) {
             if(ev->GetType() == Actions::A_ENDED) {
                 std::cout << "[*] A_ENDED" << std::endl;
                 AEnded = true;
@@ -72,6 +75,10 @@ class DemoController : public BaseComponent {
                 std::cout << "[*] B_ENDED" << std::endl;
                 BEnded = true;
             }
+        }
+
+        void End() {
+
         }
 };
 

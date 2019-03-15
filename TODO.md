@@ -2,6 +2,5 @@
 - [X] "BaseComponent" inherited from "BaseStoppable".
 - [ ] New classes:
   - Timer.
-
 - [ ] Unit test
 - [ ] Serializer class
